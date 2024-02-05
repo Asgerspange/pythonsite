@@ -8,23 +8,22 @@ import os
 model_name = "microsoft/DialoGPT-large"
 
 # Define the directory where you want to save the model
-cache_dir = "D:/Hugging"
+cache_dir = "E:/Hugging"
 
 # Download and load the tokenizer
-tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir=cache_dir, local_files_only=False)
+tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir=cache_dir, local_files_only=True)
 
 # Download and load the model
-model = AutoModelForCausalLM.from_pretrained(model_name, cache_dir=cache_dir, local_files_only=False)
+model = AutoModelForCausalLM.from_pretrained(model_name, cache_dir=cache_dir, local_files_only=True)
 
 app = Flask(__name__)
 CORS(app)
 
-
 class ChatBot:
     def __init__(self, model_name):
         self.model_name = model_name
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.model = AutoModelForCausalLM.from_pretrained(model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir=cache_dir, local_files_only=True)
+        self.model = AutoModelForCausalLM.from_pretrained(model_name, cache_dir=cache_dir, local_files_only=True)
 
     def generate_response(self, prompt, max_length=100):
         input_ids = self.tokenizer.encode(prompt, return_tensors="pt")
