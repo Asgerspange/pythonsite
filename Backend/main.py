@@ -1,43 +1,38 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from urllib.parse import unquote
+from ctransformers import AutoModelForCausalLM, AutoTokenizer
 import torch
-
-model_name = "JosephusCheung/Guanaco"
-fp16_enabled = True  # Set to True for fp16 inference
 
 app = Flask(__name__)
 CORS(app)
 
-class ChatBot:
-    def __init__(self, model_name, fp16_enabled):
-        self.model_name = model_name
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.model = AutoModelForCausalLM.from_pretrained(model_name)
-        if fp16_enabled:
-            self.model.half()  # Enable fp16 inference
+model_name = "TheBloke/Guanaco-13B-Uncensored-GGUF"
+model_file = "guanaco-13b-uncensored.Q5_K_S.gguf"
+llm = AutoModelForCausalLM.from_pretrained(model_name, model_file=model_file, model_type="llama", gpu_layers=10, hf=True)
+tokenizer = AutoTokenizer.from_pretrained(llm)
 
-    def generate_response(self, prompt, max_length=100):
-        input_ids = self.tokenizer.encode(prompt, return_tensors="pt")
-        if fp16_enabled:
-            input_ids = input_ids.half()  # Convert input to fp16 if enabled
-        input_ids = input_ids.to(torch.long)  # Convert input to Long dtype
-        response_ids = self.model.generate(input_ids, max_length=max_length, pad_token_id=self.tokenizer.eos_token_id)
-        response = self.tokenizer.decode(response_ids[0], skip_special_tokens=True)
-        return response
+@app.route('/generate', methods=['POST'])
+def generate_text():
+    data = request.json
+    human_prompt = data['message']
     
-    def get_response(self, prompt):
-        response = self.generate_response(prompt)
-        return {'response': response}
+    inputs = tokenizer(human_prompt, return_tensors="pt")
 
-chatbot = ChatBot(model_name, fp16_enabled)
+    with torch.no_grad():
+        # Adjust topk and topp parameters here
+        output = llm.generate(
+            input_ids=inputs['input_ids'],
+            attention_mask=inputs['attention_mask'],
+            max_length=150,  # Adjust max_length as needed
+            do_sample=True,
+            top_k=50,  # Adjust topk as needed
+            top_p=0.95,  # Adjust topp as needed
+            temperature=1.0  # Adjust temperature as needed
+        )
 
-
-@app.route('/get_response/<prompt>', methods=['GET'])
-def get_response(prompt):
-    prompt = unquote(prompt)
-    return jsonify(chatbot.get_response(prompt))
+    generated_text = tokenizer.decode(output[0], skip_special_tokens=True)
+    
+    return jsonify({"response": generated_text})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False)
