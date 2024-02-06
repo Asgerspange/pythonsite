@@ -1,15 +1,15 @@
 <template>
     <div>
-        <TestComponent />
+        <ChatComponent />
     </div>
 </template>
 
 <script>
-    import TestComponent from '@/components/TestComponent.vue';
+    import ChatComponent from '@/components/ChatComponent.vue';
 
     export default {
         components: {
-            TestComponent
+            ChatComponent
         }
     }
 </script>

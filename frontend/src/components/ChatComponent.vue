@@ -26,8 +26,9 @@
               this.userMessage = '';
               try {
                   // Simulating a conversation with an API
-                  const response = await axios.get(`http://10.130.54.72:5000/get_response/${encodeURIComponent(message.content+'.')}`);
+                  const response = await axios.post(`http://192.168.87.139:5000/generate`, { message: message.content+'.' });
                   const botMessage = { sender: 'bot', content: response.data.response };
+                  console.log(response.data)
                   this.messages.push(botMessage);
               } catch (error) {
                   console.error('Error sending message:', error);
@@ -40,23 +41,28 @@
   .chat-container {
       margin: 0 auto;
       border: 1px solid #ccc;
+      min-height: 200px;
       border-radius: 10px;
       padding: 20px;
-      background-color: #f9f9f9;
+      background-color: #111111;
   }
   .user-message {
       text-align: right;
       margin-bottom: 10px;
+      color: #fce9e9;
+      font-size: 20px;
   }
   .bot-message {
       text-align: left;
       margin-bottom: 10px;
+      color: #fce9e9;
+      font-size: 20px;
   }
   .user-input {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 20px;
+      margin-top: 120px;
   }
   .user-input input {
       flex: 1;
@@ -64,6 +70,8 @@
       padding: 8px;
       border-radius: 5px;
       border: 1px solid #ccc;
+      background-color: #161616;
+      color: #fce9e9;
   }
   .user-input button {
       padding: 8px 15px;
