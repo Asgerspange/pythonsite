@@ -1,0 +1,4 @@
+pip uninstall ctransformers
+straight from my fork
+
+pip install --no-cache-dir git+https://github.com/victorlee0505/ctransformers.git@vlee/transformers#egg=ctransformers[cuda]
