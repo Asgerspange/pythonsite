@@ -26,7 +26,7 @@
               this.userMessage = '';
               try {
                   // Simulating a conversation with an API
-                  const response = await axios.post(`http://192.168.87.139:5000/generate`, { message: message.content+'.' });
+                  const response = await axios.post(`http://192.168.87.139:5000/generate`, { prompt: message.content+'.' });
                   const botMessage = { sender: 'bot', content: response.data.response };
                   console.log(response.data)
                   this.messages.push(botMessage);
